@@ -34,6 +34,7 @@ func CreateGrammar(T []string, N []string, S string, P []Rule) Grammar {
 
 // The Chomsky Hierarchy classifies formal grammars into four types based on their production rules and computational power:
 func (g *Grammar) Type() string {
+
 	if g.isType3() {
 		return "Type 3: Regular Grammar"
 	} else if g.isType2() {
@@ -43,18 +44,16 @@ func (g *Grammar) Type() string {
 	} else if g.isType0() {
 		return "Type 0: Unrestricted Grammar"
 	}
+
 	return "Unknown Type"
 }
 
 func (g *Grammar) isType3() bool {
 
-	if !g.isType2() || !g.isType1() || !g.isType0() {
-		return false
-	}
-
 	for i := 0; i < len(g.P); i++ {
 		rule := g.P[i]
-		if !IsRuleOnlyTerminal(rule, g.T) || !IsRuleRightRegular(rule, g.N, g.T) || !IsRuleLeftRegular(rule, g.N, g.T) {
+
+		if !IsRuleOnlyTerminal(rule, g.T) && !IsRuleRightRegular(rule, g.N, g.T) && !IsRuleLeftRegular(rule, g.N, g.T) {
 			return false
 		}
 	}
@@ -64,28 +63,20 @@ func (g *Grammar) isType3() bool {
 
 func (g *Grammar) isType2() bool {
 
-	if !g.isType1() || !g.isType0() {
-		return false
-	}
-
 	for i := 0; i < len(g.P); i++ {
 		R := g.P[i]
-
-		if len(R.Left) != 1 ||
-			!InArray(g.N, R.Left[0]) ||
-			!IsRuleTerminalNonterminal(R, g.N, g.T) {
+		if len(R.Left) != 2 || R.Left[1] != NT_SUFFIX || !InArray(g.N, R.Left[0]) {
+			return false
+		}
+		if len(R.Right) == 0 {
 			return false
 		}
 	}
 
 	return true
-
 }
 
 func (g *Grammar) isType1() bool {
-	if !g.isType0() {
-		return false
-	}
 
 	for i := 0; i < len(g.P); i++ {
 		R := g.P[i]

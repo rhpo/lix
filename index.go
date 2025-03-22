@@ -74,6 +74,8 @@ func app(open bool) {
 func main() {
 	functions.Help()
 
-	open := io.GetBool("Open grammar from file?", colors.Yellow)
-	app(open)
+	for {
+		open := io.GetBool("Open grammar from file?", colors.Yellow)
+		app(open)
+	}
 }

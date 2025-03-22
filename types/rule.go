@@ -4,6 +4,8 @@ import (
 	. "thl/functions"
 )
 
+const NT_SUFFIX = "*"
+
 type Rule struct {
 	Left  []string
 	Right []string
@@ -11,7 +13,7 @@ type Rule struct {
 
 func IsRuleOnlyTerminal(R Rule, term []string) bool {
 	for i := 0; i < len(R.Right); i++ {
-		if !InArray(term, R.Right[i]) {
+		if R.Right[i] == NT_SUFFIX {
 			return false
 		}
 	}
@@ -21,38 +23,59 @@ func IsRuleOnlyTerminal(R Rule, term []string) bool {
 
 func IsRuleLeftRegular(R Rule, nonterm []string, term []string) bool {
 	// the left side of the right of the rule ends with one single non terminal
-	if len(R.Right) == 0 || len(R.Right) == 1 && InArray(nonterm, R.Right[0]) {
+	if len(R.Right) == 0 {
+		return false
+	}
+
+	if len(R.Right) == 2 && InArray(nonterm, R.Right[0]) && R.Right[1] == NT_SUFFIX {
 		return true
 	} else {
-		if InArray(nonterm, R.Right[0]) {
-			for i := 1; i < len(R.Right); i++ {
+
+		isNonTerminal := len(R.Right) >= 2 && InArray(nonterm, R.Right[0]) && R.Right[1] == NT_SUFFIX
+
+		if isNonTerminal {
+			for i := 2; i < len(R.Right); i++ {
 				if !InArray(term, R.Right[i]) {
 					return false
 				}
 			}
-
 			return true
 		} else {
 			return false
 		}
+
 	}
+
+}
+
+func swapStar(s string) string {
+	runes := []rune(s)
+	for i := 0; i < len(runes)-1; i++ {
+		if runes[i] == '*' {
+			// Swap '*' with the next character
+			runes[i], runes[i+1] = runes[i+1], runes[i]
+			i++ // Skip next character to avoid double swaps
+		}
+	}
+	return string(runes)
 }
 
 func IsRuleRightRegular(R Rule, nonterm []string, term []string) bool {
 
-	R_reversed := Rule{
-		Left:  R.Left,
-		Right: Split(Reverse(Join(R.Right))),
-	}
+	rightSide := Reverse(Join(R.Right))
+	rightSide = swapStar(rightSide)
 
-	return IsRuleLeftRegular(R_reversed, nonterm, term)
-
+	R_Reversed := &Rule{Left: R.Left, Right: Split(rightSide)}
+	return IsRuleLeftRegular(*R_Reversed, nonterm, term)
 }
 
 func IsRuleTerminalNonterminal(R Rule, nonterm []string, term []string) bool {
 
 	for i := 0; i < len(R.Right); i++ {
 		if !InArray(term, R.Right[i]) && !InArray(nonterm, R.Right[i]) {
+			if R.Right[i] == NT_SUFFIX {
+				continue
+			}
 			return false
 		}
 	}
@@ -65,6 +88,9 @@ func LeftSideGamma(R Rule, nonterm []string, term []string) bool {
 	result := true
 
 	for i := 0; i < len(R.Left); i++ {
+		if R.Left[i] == NT_SUFFIX {
+			continue
+		}
 		if !InArray(term, R.Left[i]) && !InArray(nonterm, R.Left[i]) {
 			result = false
 			break

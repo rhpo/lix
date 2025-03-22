@@ -45,7 +45,7 @@ func ReadRule(nonterm []string, term []string, rules []types.Rule, c types.IColo
 		// continue and validate the input entered...
 		// if valid, the loop stops and we can continue
 		// to the right side of the rule.
-		isLValid = ValidateInput(left, term, nonterm)
+		isLValid = ValidateInput(&left, term, nonterm)
 
 		if !isLValid {
 			continue
@@ -67,7 +67,7 @@ func ReadRule(nonterm []string, term []string, rules []types.Rule, c types.IColo
 		fmt.Scanf("%s", &right)
 		right = functions.Trim(right)
 
-		isRValid = ValidateInput(right, term, nonterm)
+		isRValid = ValidateInput(&right, term, nonterm)
 
 		// if the right side of the rule is invalid,
 		// display the invalid rule and continue the loop.
@@ -115,20 +115,20 @@ func ReadRule(nonterm []string, term []string, rules []types.Rule, c types.IColo
 // the term or nonterm slices. If any character is not found in either slice, it
 // clears the Rule prompt and returns false, indicating invalid input. Otherwise,
 // it returns true.
-func ValidateInput(input string, term []string, nonterm []string) bool {
+func ValidateInput(input *string, term []string, nonterm []string) bool {
 	var isNonTerm bool = false
 
-	for i := 0; i < len(input); i++ {
-		char := string(input[i])
+	for i := 0; i < len(*input); i++ {
+		char := string((*input)[i])
 
 		if char == NT_SUFFIX {
 			// error, unexpected symbol
 			functions.ClearLine(2)
-			ErrorPos(input, i, "Unexpected '"+NT_SUFFIX+"'")
+			ErrorPos(*input, i, "Unexpected '"+NT_SUFFIX+"'")
 			return false
 		}
 
-		if i < len(input)-1 && string(input[i+1]) == NT_SUFFIX {
+		if i < len(*input)-1 && string((*input)[i+1]) == NT_SUFFIX {
 			isNonTerm = true
 			i++
 		} else {
@@ -138,13 +138,20 @@ func ValidateInput(input string, term []string, nonterm []string) bool {
 		if isNonTerm && !functions.InArray(nonterm, char) {
 
 			functions.ClearLine(2)
-			ErrorPos(input, i-1, "Symbol not found in non-terminals")
+			ErrorPos(*input, i-1, "Symbol not found in non-terminals")
 			return false
 
 		} else if !isNonTerm && !functions.InArray(term, char) {
 
+			if functions.InArray(nonterm, char) {
+				// inject the suffix to the current position
+				*input = functions.InsertAt(*input, NT_SUFFIX, i+1)
+				i--
+				continue
+			}
+
 			functions.ClearLine(2)
-			ErrorPos(input, i, "Symbol not found in terminals")
+			ErrorPos(*input, i, "Symbol not found in terminals")
 			return false
 		}
 

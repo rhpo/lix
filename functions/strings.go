@@ -24,8 +24,8 @@ func Trim(str string) string {
 
 func Reverse(str string) string {
 	result := Split(str)
-	for i := 0; i < len(str); i++ {
-		result[i], result[len(str)-i] = result[len(str)-i], result[i]
+	for i := 0; i < len(result)/2; i++ {
+		result[i], result[len(result)-1-i] = result[len(result)-1-i], result[i]
 	}
 	return Join(result)
 }

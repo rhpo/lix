@@ -20,3 +20,20 @@ func Remove[T comparable](array []T, item T) []T {
 	}
 	return result
 }
+
+func InsertAt(str string, item string, pos int) string {
+	if pos < 0 || pos > len(str) {
+		return str
+	}
+	var result []byte
+	for i := 0; i < len(str); i++ {
+		if i == pos {
+			result = append(result, item...)
+		}
+		result = append(result, str[i])
+	}
+	if pos == len(str) {
+		result = append(result, item...)
+	}
+	return string(result)
+}
