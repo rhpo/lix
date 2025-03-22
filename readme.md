@@ -30,9 +30,11 @@ Enter non-terminals: S A B
 Enter axiom: S
 
 Enter rules:
-S → A B
-A* → a A | a
-B* → b B | b c
+S → AB
+A* → aA
+A* → a
+B* → bB
+B* → b
 ```
 
 ### 3️⃣ Generate & Explore
