@@ -53,7 +53,7 @@ func (g *Grammar) isType3() bool {
 	for i := 0; i < len(g.P); i++ {
 		rule := g.P[i]
 
-		if !IsRuleOnlyTerminal(rule, g.T) && !IsRuleRightRegular(rule, g.N, g.T) && !IsRuleLeftRegular(rule, g.N, g.T) {
+		if len(rule.Left) != 2 || rule.Left[1] != NT_SUFFIX || !InArray(g.N, rule.Left[0]) || !IsRuleOnlyTerminal(rule, g.T) && !IsRuleRightRegular(rule, g.N, g.T) && !IsRuleLeftRegular(rule, g.N, g.T) {
 			return false
 		}
 	}
