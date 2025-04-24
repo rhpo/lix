@@ -6,6 +6,8 @@ import (
 	"thl/colors"
 	"thl/functions"
 	"thl/types"
+
+	. "thl/constants"
 )
 
 // ReadRule reads a grammar rule from the user input, validates it, and returns it.
@@ -17,20 +19,20 @@ func ReadRule(nonterm []string, term []string, rules []types.Rule, c types.IColo
 	var isRValid bool = false
 	var exists bool = false
 
-	const leftTitle string = "Rule's Left (↩ continue/cancel)\n| "
+	const STR_TITLE_LEFT string = "Rule's Left (↩ continue/cancel)\n| "
 
 	for !isLValid {
 		left = ""
 
 		if num == 0 {
-			c.Print(leftFirstTitle)
+			c.Print(STR_TITLE_LEFT_FIRST)
 		} else {
-			c.Print(leftTitle)
+			c.Print(STR_TITLE_LEFT)
 		}
 
 		// gap between terminal and last line
 		functions.Gap()
-		c.Print(wall)
+		c.Print(STR_WALL)
 
 		fmt.Scanf("%s", &left)
 		left = functions.Trim(left)
@@ -41,6 +43,16 @@ func ReadRule(nonterm []string, term []string, rules []types.Rule, c types.IColo
 			functions.ClearLine(2)
 			return nil
 		}
+
+		if reformat(left) != nil {
+			left = *reformat(left)
+		} else {
+			functions.ClearLine(2)
+			ErrorPos(left, len(left), "Expected character after "+ESCAPE_CHARACTER)
+			continue
+		}
+
+		// we now have the input
 
 		// continue and validate the input entered...
 		// if valid, the loop stops and we can continue
@@ -60,12 +72,20 @@ func ReadRule(nonterm []string, term []string, rules []types.Rule, c types.IColo
 		// and display the prompt again...
 
 		functions.ClearLine(2)
-		c.Print(rightTitle)
-		fmt.Printf("%s %s ", left, separator)
+		c.Print(STR_TITLE_RIGHT)
+		fmt.Printf("%s %s ", StringReal(left), SEPARATOR)
 
 		// scan the right side of the rule and validate it.
 		fmt.Scanf("%s", &right)
 		right = functions.Trim(right)
+
+		if reformat(right) != nil {
+			right = *reformat(right)
+		} else {
+			functions.ClearLine(2)
+			ErrorPos(right, len(right), "Expected character after "+ESCAPE_CHARACTER)
+			continue
+		}
 
 		isRValid = ValidateInput(&right, term, nonterm)
 
@@ -87,6 +107,7 @@ func ReadRule(nonterm []string, term []string, rules []types.Rule, c types.IColo
 			break
 		}
 	}
+
 	if exists {
 		functions.ClearLine(2)
 		colors.Red.Print("Rule already exists.\n")
@@ -99,7 +120,7 @@ func ReadRule(nonterm []string, term []string, rules []types.Rule, c types.IColo
 	functions.Clear()
 
 	c.Printf("Rule (Number %d)\n| ", num+1)
-	fmt.Printf("%s %s %s\n", left, separator, right)
+	fmt.Printf("%s %s %s\n", StringReal(left), SEPARATOR, StringReal(right))
 	c.Print("-------------------\n\n")
 	// ____________________________________________
 
@@ -109,6 +130,42 @@ func ReadRule(nonterm []string, term []string, rules []types.Rule, c types.IColo
 		Left:  functions.Split(left),
 		Right: functions.Split(right),
 	}
+}
+
+func reformat(str string) *string {
+	var escaped bool = false
+	var result string = ""
+
+	for i := 0; i < len(str); i++ {
+		char := string((str)[i])
+
+		if char == ESCAPE_CHARACTER && !escaped {
+			escaped = true
+			continue
+		}
+
+		if !escaped {
+			if char == NT_SUFFIX {
+				result += REAL_NT_SUFFIX
+				continue
+			}
+		} else {
+			escaped = false
+
+			if char == NT_SUFFIX {
+				result += NT_SUFFIX
+				continue
+			}
+		}
+
+		result += char
+	}
+
+	if escaped {
+		return nil
+	}
+
+	return &result
 }
 
 // ValidateInput checks if each character in the input string is present in either
@@ -121,14 +178,14 @@ func ValidateInput(input *string, term []string, nonterm []string) bool {
 	for i := 0; i < len(*input); i++ {
 		char := string((*input)[i])
 
-		if char == NT_SUFFIX {
+		if char == REAL_NT_SUFFIX {
 			// error, unexpected symbol
 			functions.ClearLine(2)
 			ErrorPos(*input, i, "Unexpected '"+NT_SUFFIX+"'")
 			return false
 		}
 
-		if i < len(*input)-1 && string((*input)[i+1]) == NT_SUFFIX {
+		if i < len(*input)-1 && string((*input)[i+1]) == REAL_NT_SUFFIX {
 			isNonTerm = true
 			i++
 		} else {
@@ -145,7 +202,7 @@ func ValidateInput(input *string, term []string, nonterm []string) bool {
 
 			if functions.InArray(nonterm, char) {
 				// inject the suffix to the current position
-				*input = functions.InsertAt(*input, NT_SUFFIX, i+1)
+				*input = functions.InsertAt(*input, REAL_NT_SUFFIX, i+1)
 				i--
 				continue
 			}
@@ -163,6 +220,7 @@ func ValidateInput(input *string, term []string, nonterm []string) bool {
 func ErrorPos(str string, pos int, message string) {
 
 	position := pos - 1
+	str = StringReal(str)
 
 	if pos == 0 {
 		position = 0

@@ -75,7 +75,9 @@ func main() {
 	functions.Help()
 
 	for {
-		open := io.GetBool("Open grammar from file?", colors.Yellow)
+		open := false
+		// open = io.GetBool("Open grammar from file?", colors.Yellow)
+
 		app(open)
 	}
 }

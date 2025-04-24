@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"strings"
 
+	. "thl/constants"
+
 	"github.com/mattn/go-tty"
 	"golang.org/x/term"
 )
@@ -73,13 +75,13 @@ func ValidateRules(rules []types.Rule, axiom string, terminals []string) bool {
 
 	for i := 0; i < len(rules); i++ {
 		r := rules[i]
-		if len(r.Left) == 2 && r.Left[0] == axiom && r.Left[1] == NT_SUFFIX {
+		if len(r.Left) == 2 && r.Left[0] == axiom && r.Left[1] == REAL_NT_SUFFIX {
 			atLeastOneIn = true
 		}
 
 		every := true
 		for j := 0; j < len(r.Right); j++ {
-			if r.Right[j] == NT_SUFFIX {
+			if r.Right[j] == REAL_NT_SUFFIX {
 				every = false
 			}
 		}
@@ -107,7 +109,7 @@ func GetInput(message string, symbol string, color types.IColor) []string {
 
 	color.Print(message, "\n")
 	for {
-		color.Print(wall)
+		color.Print(STR_WALL)
 
 		var input string
 		colors.Cyan.Printf("%s[%d]: ", symbol, count)
@@ -117,7 +119,7 @@ func GetInput(message string, symbol string, color types.IColor) []string {
 			input = string(strings.TrimSpace(input)[0])
 		}
 
-		color.Print(wall)
+		color.Print(STR_WALL)
 		colors.Cyan.Printf("%s[%d]: ", symbol, count)
 		fmt.Printf("%s", input)
 
@@ -125,7 +127,7 @@ func GetInput(message string, symbol string, color types.IColor) []string {
 
 		if input == "" && len(items) == 0 {
 			functions.ClearCurrentLine()
-			color.Print(wall)
+			color.Print(STR_WALL)
 			colors.Red.Println("✗ Please enter at least one item!")
 			count--
 			continue
@@ -137,14 +139,14 @@ func GetInput(message string, symbol string, color types.IColor) []string {
 
 		if functions.InArray(items, input) {
 			functions.ClearCurrentLine()
-			color.Print(wall)
+			color.Print(STR_WALL)
 			colors.Red.Println("✗ Duplicate entry!")
 			count--
 			continue
 		}
 
 		functions.ClearCurrentLine()
-		color.Print(wall)
+		color.Print(STR_WALL)
 		colors.Cyan.Printf("%s[%d]: ", symbol, count-1)
 		fmt.Println(input)
 
@@ -162,7 +164,7 @@ func GetAxiom(nonTerminals []string, color types.IColor) string {
 	color.Print(message, "\n")
 
 	for {
-		color.Print(wall)
+		color.Print(STR_WALL)
 		color.Print("Axiom (S): ")
 
 		fmt.Scanf("%s", &axiom)
@@ -173,7 +175,7 @@ func GetAxiom(nonTerminals []string, color types.IColor) string {
 
 		functions.ClearLine(1)
 
-		color.Print(wall)
+		color.Print(STR_WALL)
 		colors.Red.Print("✗ Axiom must be in Non-terminals!\n")
 	}
 

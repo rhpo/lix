@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	. "thl/constants"
+
 	"thl/colors"
 	"thl/functions"
 	"thl/types"
@@ -27,8 +29,9 @@ func PrintTable(A []string, title string, color types.IColor, axioms ...string) 
 	var header string = title
 	color.Println(header)
 
-	color.Print(wall)
+	color.Print(STR_WALL)
 	for i := 0; i < len(A); i++ {
+		A[i] = StringReal(A[i])
 
 		if i == len(A)-1 {
 			color.Printf("%s\n", A[i])
@@ -52,17 +55,19 @@ func PrintRules(R []types.Rule, nonterm []string, color types.IColor) {
 	color.Println(header)
 
 	for i := 0; i < len(R); i++ {
-		color.Print(wall)
+		color.Print(STR_WALL)
 		ruleLength = 0 // Reset ruleLength for each rule
 
 		for j := 0; j < len(R[i].Left); j++ {
 			l := R[i].Left[j]
 
-			// if next character is equal to NT_SUFFIX, colorize the current character
-			if j < len(R[i].Left)-1 && R[i].Left[j+1] == NT_SUFFIX {
-				colors.Cyan.Printf("%s", l)
+			// if next character is equal to REAL_NT_SUFFIX, colorize the current character
+			if j < len(R[i].Left)-1 && R[i].Left[j+1] == REAL_NT_SUFFIX {
 
-				j++
+				colors.Cyan.Printf("%s"+NT_SUFFIX, l)
+
+				j++ // for the axiom
+				j++ // for the NT_SUFFIX
 				ruleLength++
 			} else {
 				color.Printf("%s", l)
@@ -71,8 +76,8 @@ func PrintRules(R []types.Rule, nonterm []string, color types.IColor) {
 			ruleLength++
 		}
 
-		color.Print(" ", separator, " ")
-		ruleLength += len(separator) + 2
+		color.Print(" ", SEPARATOR, " ")
+		ruleLength += len(SEPARATOR) + 2
 
 		if functions.Join(R[i].Right) == "" {
 			colors.Gray.Println("ε")
@@ -80,7 +85,7 @@ func PrintRules(R []types.Rule, nonterm []string, color types.IColor) {
 			for j := 0; j < len(R[i].Right); j++ {
 				r := R[i].Right[j]
 
-				if j < len(R[i].Right)-1 && R[i].Right[j+1] == NT_SUFFIX {
+				if j < len(R[i].Right)-1 && R[i].Right[j+1] == REAL_NT_SUFFIX {
 					colors.Cyan.Printf("%s", r)
 
 					j++
