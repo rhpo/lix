@@ -2,6 +2,7 @@ package main
 
 import (
 	"thl/colors"
+	"thl/eval"
 	"thl/functions"
 	"thl/types"
 
@@ -64,6 +65,21 @@ func app(open bool) {
 		functions.Clear()
 		ShowGrammar()
 
+		wlen := io.GetInt("Words maximum? ", colors.Yellow)
+		if wlen < 1 {
+			colors.Red.Println("✗ Words count must be greater than 0!")
+			return
+		}
+
+		var words []string = eval.Evaluate(G, 0, wlen)
+
+		if len(words) == 0 {
+			colors.Red.Println("✗ No words generated!")
+			return
+		}
+
+		io.PrintTable(words, "\nGenerated Words (w)", colors.Cyan)
+
 		if io.GetBool("Save grammar to file?", colors.Yellow) {
 			name := io.GetString("Name? ", colors.Blue)
 			G.SaveTo(name)
@@ -75,8 +91,7 @@ func main() {
 	functions.Help()
 
 	for {
-		open := false
-		// open = io.GetBool("Open grammar from file?", colors.Yellow)
+		open := io.GetBool("Open grammar from file?", colors.Yellow)
 
 		app(open)
 	}

@@ -53,17 +53,6 @@ func (g *Grammar) isType3() bool {
 
 	for i := 0; i < len(g.P); i++ {
 		rule := g.P[i]
-
-		// fmt.Println("len(rule.Left) != 2: ", len(rule.Left) != 2)
-		// fmt.Println("Char: ", rule.Left[1])
-		// fmt.Println("Real NT SUFFIX: ", REAL_NT_SUFFIX)
-		// fmt.Println("Char == RREAL NT SUFFIX: ", rule.Left[1] == REAL_NT_SUFFIX)
-		// fmt.Println("rule.Left[1] != REAL_NT_SUFFIX: ", rule.Left[1] != REAL_NT_SUFFIX)
-		// fmt.Println("!InArray(g.N, rule.Left[0]): ", !InArray(g.N, rule.Left[0]))
-		// fmt.Println("!IsRuleOnlyTerminal(rule, g.T): ", !IsRuleOnlyTerminal(rule, g.T))
-		// fmt.Println("!IsRuleRightRegular(rule, g.N, g.T): ", !IsRuleRightRegular(rule, g.N, g.T))
-		// fmt.Println("!IsRuleLeftRegular(rule, g.N, g.T): ", !IsRuleLeftRegular(rule, g.N, g.T))
-
 		if len(rule.Left) != 2 || rule.Left[1] != REAL_NT_SUFFIX || !InArray(g.N, rule.Left[0]) || !IsRuleOnlyTerminal(rule, g.T) && !IsRuleRightRegular(rule, g.N, g.T) && !IsRuleLeftRegular(rule, g.N, g.T) {
 			return false
 		}

@@ -27,10 +27,12 @@ func GetBool(message string, color types.IColor) bool {
 	// Switch to raw mode
 	fd := int(os.Stdin.Fd())
 	oldState, err := term.MakeRaw(fd)
+
 	if err != nil {
 		colors.Red.Println(err)
 	}
-	defer term.Restore(fd, oldState) // Ensure restoration even on panic
+
+	defer term.Restore(fd, oldState)
 
 	// Print message with color
 	color.Print(message, " (Y/n) ")
@@ -165,7 +167,7 @@ func GetAxiom(nonTerminals []string, color types.IColor) string {
 
 	for {
 		color.Print(STR_WALL)
-		color.Print("Axiom (S): ")
+		color.Print("Axiom (ex. S): ")
 
 		fmt.Scanf("%s", &axiom)
 
@@ -189,6 +191,15 @@ func GetString(message string, color types.IColor) string {
 
 	color.Print(message)
 	fmt.Scanf("%s", &input)
+
+	return input
+}
+
+func GetInt(message string, color types.IColor) int {
+	var input int
+
+	color.Print(message)
+	fmt.Scanf("%d", &input)
 
 	return input
 }
